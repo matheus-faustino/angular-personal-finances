@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, output } from '@angular/core';
+import { Router } from '@angular/router';
 import { ThemeService } from '../../core/services/theme.service';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -48,7 +49,7 @@ import { AuthService } from '../../core/services/auth.service';
         <!-- Logout -->
         <button
           type="button"
-          (click)="auth.clearUser()"
+          (click)="logout()"
           class="p-2 rounded-lg text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-600 transition-colors"
           aria-label="Sair da conta"
         >
@@ -64,5 +65,12 @@ export class HeaderComponent {
   readonly sidebarToggle = output<void>();
 
   protected readonly theme = inject(ThemeService);
-  protected readonly auth = inject(AuthService);
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+
+  logout(): void {
+    this.auth.logout().subscribe({
+      complete: () => this.router.navigate(['/login']),
+    });
+  }
 }
