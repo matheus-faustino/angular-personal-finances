@@ -33,6 +33,13 @@ export const routes: Routes = [
           import('./features/documents/documents').then(m => m.DocumentsComponent),
       },
       {
+        path: 'documents/:id/categorize',
+        loadComponent: () =>
+          import('./features/documents/categorize-transactions/categorize-transactions').then(
+            m => m.CategorizeTransactionsComponent,
+          ),
+      },
+      {
         path: 'users',
         canActivate: [roleGuard],
         data: { roles: ['admin'] },

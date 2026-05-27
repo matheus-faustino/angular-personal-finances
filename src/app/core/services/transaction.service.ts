@@ -6,7 +6,9 @@ import { ApiConfiguration } from '../../../api/api-configuration';
 import { TransactionResource } from '../../../api/models/transaction-resource';
 import { StoreTransactionRequest } from '../../../api/models/store-transaction-request';
 import { UpdateTransactionRequest } from '../../../api/models/update-transaction-request';
+import { BulkUpdateTransactionRequest } from '../../../api/models/bulk-update-transaction-request';
 import { transactionsIndex } from '../../../api/fn/transaction/transactions-index';
+import { transactionsBulkUpdate } from '../../../api/fn/transaction/transactions-bulk-update';
 import { transactionsStore } from '../../../api/fn/transaction/transactions-store';
 import { transactionsUpdate } from '../../../api/fn/transaction/transactions-update';
 import { transactionsDestroy } from '../../../api/fn/transaction/transactions-destroy';
@@ -64,6 +66,32 @@ export class TransactionService {
     return transactionsDestroy(this.http, this.apiConfig.rootUrl, { transaction: id }).pipe(
       map(() => undefined),
       tap(() => this.transactions.update(list => list.filter(t => t.id !== id))),
+    );
+  }
+
+  loadByDocument(documentId: number): void {
+    this.loading.set(true);
+    this.error.set(null);
+    transactionsIndex(this.http, this.apiConfig.rootUrl, { document_id: documentId })
+      .pipe(
+        map(r => r.body.data),
+        tap(data => this.transactions.set(data)),
+        catchError(err => {
+          this.error.set(err?.error?.message ?? 'Erro ao carregar transações.');
+          return EMPTY;
+        }),
+        finalize(() => this.loading.set(false)),
+      )
+      .subscribe();
+  }
+
+  bulkUpdate(transactions: BulkUpdateTransactionRequest['transactions']): Observable<TransactionResource[]> {
+    return transactionsBulkUpdate(this.http, this.apiConfig.rootUrl, { body: { transactions } }).pipe(
+      map(r => r.body.data),
+      tap(updated => {
+        const byId = new Map(updated.map(t => [t.id, t]));
+        this.transactions.update(list => list.map(t => byId.get(t.id) ?? t));
+      }),
     );
   }
 }

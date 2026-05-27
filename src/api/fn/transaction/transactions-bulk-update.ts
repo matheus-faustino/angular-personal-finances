@@ -7,26 +7,19 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
+import { BulkUpdateTransactionRequest } from '../../models/bulk-update-transaction-request';
 import { TransactionResource } from '../../models/transaction-resource';
 
-export interface TransactionsIndex$Params {
-  start_date?: (string | null);
-  end_date?: (string | null);
-  per_page?: (number | null);
-  category_id?: (number | null);
-  document_id?: (number | null);
+export interface TransactionsBulkUpdate$Params {
+      body: BulkUpdateTransactionRequest
 }
 
-export function transactionsIndex(http: HttpClient, rootUrl: string, params?: TransactionsIndex$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+export function transactionsBulkUpdate(http: HttpClient, rootUrl: string, params: TransactionsBulkUpdate$Params, context?: HttpContext): Observable<StrictHttpResponse<{
 'data': Array<TransactionResource>;
 }>> {
-  const rb = new RequestBuilder(rootUrl, transactionsIndex.PATH, 'get');
+  const rb = new RequestBuilder(rootUrl, transactionsBulkUpdate.PATH, 'patch');
   if (params) {
-    rb.query('start_date', params.start_date, {});
-    rb.query('end_date', params.end_date, {});
-    rb.query('per_page', params.per_page, {});
-    rb.query('category_id', params.category_id, {});
-    rb.query('document_id', params.document_id, {});
+    rb.body(params.body, 'application/json');
   }
 
   return http.request(
@@ -41,4 +34,4 @@ export function transactionsIndex(http: HttpClient, rootUrl: string, params?: Tr
   );
 }
 
-transactionsIndex.PATH = '/transactions';
+transactionsBulkUpdate.PATH = '/transactions/bulk';

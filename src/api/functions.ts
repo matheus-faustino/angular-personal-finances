@@ -39,6 +39,8 @@ export type { AuthForgotPassword$Params as AuthForgotPassword$Params } from './f
 export { authForgotPassword as authForgotPassword } from './fn/reset-password/auth-forgot-password';
 export type { AuthResetPassword$Params as AuthResetPassword$Params } from './fn/reset-password/auth-reset-password';
 export { authResetPassword as authResetPassword } from './fn/reset-password/auth-reset-password';
+export type { TransactionsBulkUpdate$Params as TransactionsBulkUpdate$Params } from './fn/transaction/transactions-bulk-update';
+export { transactionsBulkUpdate as transactionsBulkUpdate } from './fn/transaction/transactions-bulk-update';
 export type { TransactionsIndex$Params as TransactionsIndex$Params } from './fn/transaction/transactions-index';
 export { transactionsIndex as transactionsIndex } from './fn/transaction/transactions-index';
 export type { TransactionsStore$Params as TransactionsStore$Params } from './fn/transaction/transactions-store';

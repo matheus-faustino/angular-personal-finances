@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { DocumentService } from '../../core/services/document.service';
 import { DocumentResource } from '../../../api/models/document-resource';
@@ -9,7 +10,7 @@ import { DocumentFormComponent } from './document-form/document-form';
 @Component({
   selector: 'app-documents',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, DocumentFormComponent],
+  imports: [DatePipe, RouterLink, DocumentFormComponent],
   template: `
     <div class="space-y-6">
 
@@ -84,6 +85,26 @@ import { DocumentFormComponent } from './document-form/document-form';
           </button>
         </div>
       </div>
+
+      <!-- Success banner (from categorize redirect) -->
+      @if (successMessage()) {
+        <div
+          role="status"
+          class="flex items-center justify-between rounded-lg bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 px-4 py-3 text-sm text-green-700 dark:text-green-400"
+        >
+          <span>{{ successMessage() }}</span>
+          <button
+            type="button"
+            (click)="successMessage.set(null)"
+            aria-label="Fechar"
+            class="ml-4 rounded p-0.5 hover:bg-green-100 dark:hover:bg-green-900 transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+      }
 
       <!-- Load error banner -->
       @if (documentService.error()) {
@@ -222,6 +243,14 @@ import { DocumentFormComponent } from './document-form/document-form';
                               Não
                             </button>
                           } @else {
+                            @if (doc.status === 'processed') {
+                              <a
+                                [routerLink]="['/documents', doc.id, 'categorize']"
+                                class="rounded px-2 py-1 text-xs font-medium border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors"
+                              >
+                                Categorizar
+                              </a>
+                            }
                             <button
                               type="button"
                               (click)="openEdit(doc)"
@@ -284,11 +313,17 @@ export class DocumentsComponent implements OnInit {
   protected readonly mutatingId      = signal<number | null>(null);
   protected readonly deleteError     = signal<string | null>(null);
   protected readonly downloadingId   = signal<number | null>(null);
+  protected readonly successMessage  = signal<string | null>(null);
 
   protected readonly skeletonRows = Array(5);
 
   ngOnInit(): void {
     this.documentService.loadDocuments();
+    const flash = history.state?.flash;
+    if (typeof flash === 'string') {
+      this.successMessage.set(flash);
+      history.replaceState({ ...history.state, flash: null }, '');
+    }
   }
 
   protected applyFilters(): void {

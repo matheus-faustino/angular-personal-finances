@@ -984,6 +984,56 @@
                 }
             }
         },
+        "\/transactions\/bulk": {
+            "patch": {
+                "operationId": "transactions.bulk-update",
+                "tags": [
+                    "Transaction"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "$ref": "#\/components\/schemas\/BulkUpdateTransactionRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Array of `TransactionResource`",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#\/components\/schemas\/TransactionResource"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#\/components\/responses\/AuthorizationException"
+                    },
+                    "401": {
+                        "$ref": "#\/components\/responses\/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#\/components\/responses\/ValidationException"
+                    }
+                }
+            }
+        },
         "\/transactions": {
             "get": {
                 "operationId": "transactions.index",
@@ -1027,6 +1077,16 @@
                     },
                     {
                         "name": "category_id",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "document_id",
                         "in": "query",
                         "schema": {
                             "type": [
@@ -1479,6 +1539,55 @@
             }
         },
         "schemas": {
+            "BulkUpdateTransactionRequest": {
+                "type": "object",
+                "properties": {
+                    "transactions": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "integer"
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "maxLength": 255
+                                },
+                                "description": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "date": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                "value": {
+                                    "type": "number",
+                                    "minimum": 0.01
+                                },
+                                "category_id": {
+                                    "type": "integer"
+                                }
+                            },
+                            "required": [
+                                "id",
+                                "name",
+                                "date",
+                                "value",
+                                "category_id"
+                            ]
+                        },
+                        "minItems": 1
+                    }
+                },
+                "required": [
+                    "transactions"
+                ],
+                "title": "BulkUpdateTransactionRequest"
+            },
             "CategoryResource": {
                 "type": "object",
                 "properties": {
@@ -1801,6 +1910,9 @@
                     "value": {
                         "type": "string"
                     },
+                    "category": {
+                        "$ref": "#\/components\/schemas\/CategoryResource"
+                    },
                     "created_at": {
                         "type": [
                             "string",
@@ -1814,9 +1926,6 @@
                             "null"
                         ],
                         "format": "date-time"
-                    },
-                    "category": {
-                        "$ref": "#\/components\/schemas\/CategoryResource"
                     }
                 },
                 "required": [
@@ -1826,8 +1935,7 @@
                     "date",
                     "value",
                     "created_at",
-                    "updated_at",
-                    "category"
+                    "updated_at"
                 ],
                 "title": "TransactionResource"
             },

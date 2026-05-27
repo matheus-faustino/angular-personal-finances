@@ -3,7 +3,7 @@
 
 import { CategoryResource } from '../models/category-resource';
 export interface TransactionResource {
-  category: CategoryResource;
+  category?: CategoryResource;
   created_at: (string | null);
   date: string;
   description: (string | null);
