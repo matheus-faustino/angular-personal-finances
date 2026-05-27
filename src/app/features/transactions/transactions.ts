@@ -201,7 +201,7 @@ import { TransactionFormComponent } from './transaction-form/transaction-form';
                       {{ tx.date | date:'dd/MM/yyyy' }}
                     </td>
                     <td class="px-6 py-4 text-neutral-500 dark:text-neutral-400 hidden md:table-cell">
-                      {{ tx.category.name }}
+                      {{ tx.category?.name ?? '—' }}
                     </td>
                     <td class="px-6 py-4 text-right text-neutral-900 dark:text-neutral-100 font-medium whitespace-nowrap">
                       {{ tx.value | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
