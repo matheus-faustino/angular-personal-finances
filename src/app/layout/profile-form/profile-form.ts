@@ -10,6 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
 
@@ -23,7 +24,7 @@ function passwordMatchValidator(group: AbstractControl): ValidationErrors | null
 @Component({
   selector: 'app-profile-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TranslocoModule],
   template: `
     <dialog
       #dialogEl
@@ -36,12 +37,12 @@ function passwordMatchValidator(group: AbstractControl): ValidationErrors | null
           id="profile-dialog-title"
           class="text-base font-semibold text-neutral-900 dark:text-neutral-100"
         >
-          Editar perfil
+          {{ 'profile.title' | transloco }}
         </h2>
         <button
           type="button"
           (click)="cancel()"
-          aria-label="Fechar"
+          [attr.aria-label]="'profile.close' | transloco"
           class="rounded-lg p-1 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -62,14 +63,16 @@ function passwordMatchValidator(group: AbstractControl): ValidationErrors | null
         }
 
         <div class="flex flex-col gap-1.5">
-          <label for="profile-name" class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Nome</label>
+          <label for="profile-name" class="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+            {{ 'profile.nameLabel' | transloco }}
+          </label>
           <input
             id="profile-name"
             type="text"
             formControlName="name"
             [attr.aria-invalid]="nameError() ? 'true' : null"
             [attr.aria-describedby]="nameError() ? 'profile-name-error' : null"
-            placeholder="Seu nome completo"
+            [placeholder]="'profile.namePlaceholder' | transloco"
             class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition"
             [class.border-red-400]="nameError()"
             [class.dark:border-red-500]="nameError()"
@@ -80,14 +83,16 @@ function passwordMatchValidator(group: AbstractControl): ValidationErrors | null
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label for="profile-email" class="text-sm font-medium text-neutral-700 dark:text-neutral-300">E-mail</label>
+          <label for="profile-email" class="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+            {{ 'profile.emailLabel' | transloco }}
+          </label>
           <input
             id="profile-email"
             type="email"
             formControlName="email"
             [attr.aria-invalid]="emailError() ? 'true' : null"
             [attr.aria-describedby]="emailError() ? 'profile-email-error' : null"
-            placeholder="Seu e-mail"
+            [placeholder]="'profile.emailPlaceholder' | transloco"
             class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition"
             [class.border-red-400]="emailError()"
             [class.dark:border-red-500]="emailError()"
@@ -99,7 +104,8 @@ function passwordMatchValidator(group: AbstractControl): ValidationErrors | null
 
         <div class="flex flex-col gap-1.5">
           <label for="profile-password" class="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-            Nova senha <span class="font-normal text-neutral-400">(opcional)</span>
+            {{ 'profile.passwordLabel' | transloco }}
+            <span class="font-normal text-neutral-400">({{ 'profile.passwordOptional' | transloco }})</span>
           </label>
           <input
             id="profile-password"
@@ -107,7 +113,7 @@ function passwordMatchValidator(group: AbstractControl): ValidationErrors | null
             formControlName="password"
             [attr.aria-invalid]="passwordError() ? 'true' : null"
             [attr.aria-describedby]="passwordError() ? 'profile-password-error' : null"
-            placeholder="Mínimo 8 caracteres"
+            [placeholder]="'profile.passwordPlaceholder' | transloco"
             class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition"
             [class.border-red-400]="passwordError()"
             [class.dark:border-red-500]="passwordError()"
@@ -118,14 +124,16 @@ function passwordMatchValidator(group: AbstractControl): ValidationErrors | null
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label for="profile-pwd-confirm" class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Confirmar nova senha</label>
+          <label for="profile-pwd-confirm" class="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+            {{ 'profile.passwordConfirmLabel' | transloco }}
+          </label>
           <input
             id="profile-pwd-confirm"
             type="password"
             formControlName="password_confirmation"
             [attr.aria-invalid]="passwordConfirmationError() ? 'true' : null"
             [attr.aria-describedby]="passwordConfirmationError() ? 'profile-pwd-confirm-error' : null"
-            placeholder="Repita a nova senha"
+            [placeholder]="'profile.passwordConfirmPlaceholder' | transloco"
             class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition"
             [class.border-red-400]="passwordConfirmationError()"
             [class.dark:border-red-500]="passwordConfirmationError()"
@@ -141,7 +149,7 @@ function passwordMatchValidator(group: AbstractControl): ValidationErrors | null
             (click)="cancel()"
             class="rounded-lg border border-neutral-200 dark:border-neutral-700 px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
           >
-            Cancelar
+            {{ 'profile.cancel' | transloco }}
           </button>
           <button
             type="submit"
@@ -149,7 +157,7 @@ function passwordMatchValidator(group: AbstractControl): ValidationErrors | null
             [attr.aria-busy]="loading() ? 'true' : null"
             class="rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-60 px-4 py-2 text-sm font-medium text-white transition-colors"
           >
-            @if (loading()) { Salvando… } @else { Salvar }
+            @if (loading()) { {{ 'profile.saving' | transloco }} } @else { {{ 'profile.save' | transloco }} }
           </button>
         </div>
       </form>
@@ -166,6 +174,7 @@ export class ProfileFormComponent {
   private readonly userService = inject(UserService);
   private readonly fb = inject(FormBuilder);
   private readonly dialogRef = viewChild<ElementRef<HTMLDialogElement>>('dialogEl');
+  private readonly t = inject(TranslocoService);
 
   readonly loading = signal<boolean>(false);
   readonly error = signal<string | null>(null);
@@ -204,31 +213,31 @@ export class ProfileFormComponent {
   nameError(): string | null {
     const ctrl = this.form.controls.name;
     if (!ctrl.touched) return null;
-    if (ctrl.hasError('required')) return 'Nome é obrigatório.';
-    if (ctrl.hasError('minlength')) return 'Nome deve ter ao menos 2 caracteres.';
-    if (ctrl.hasError('maxlength')) return 'Nome deve ter no máximo 150 caracteres.';
+    if (ctrl.hasError('required')) return this.t.translate('validation.nameRequired');
+    if (ctrl.hasError('minlength')) return this.t.translate('validation.nameMinLength2');
+    if (ctrl.hasError('maxlength')) return this.t.translate('validation.nameMaxLength150');
     return null;
   }
 
   emailError(): string | null {
     const ctrl = this.form.controls.email;
     if (!ctrl.touched) return null;
-    if (ctrl.hasError('required')) return 'E-mail é obrigatório.';
-    if (ctrl.hasError('email')) return 'Informe um e-mail válido.';
+    if (ctrl.hasError('required')) return this.t.translate('validation.emailRequired');
+    if (ctrl.hasError('email')) return this.t.translate('validation.emailInvalid');
     return null;
   }
 
   passwordError(): string | null {
     const ctrl = this.form.controls.password;
     if (!ctrl.touched) return null;
-    if (ctrl.hasError('minlength')) return 'Senha deve ter ao menos 8 caracteres.';
+    if (ctrl.hasError('minlength')) return this.t.translate('validation.passwordMinLength');
     return null;
   }
 
   passwordConfirmationError(): string | null {
     const ctrl = this.form.controls.password_confirmation;
     if (!ctrl.touched) return null;
-    if (this.form.hasError('passwordMismatch')) return 'As senhas não coincidem.';
+    if (this.form.hasError('passwordMismatch')) return this.t.translate('validation.passwordsMismatch');
     return null;
   }
 
@@ -270,7 +279,7 @@ export class ProfileFormComponent {
         },
         error: err => {
           this.loading.set(false);
-          this.error.set(err?.error?.message ?? 'Ocorreu um erro. Tente novamente.');
+          this.error.set(err?.error?.message ?? this.t.translate('profile.genericError'));
         },
       });
   }

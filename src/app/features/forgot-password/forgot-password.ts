@@ -2,13 +2,14 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { ApiConfiguration } from '../../../api/api-configuration';
 import { authForgotPassword } from '../../../api/fn/reset-password/auth-forgot-password';
 
 @Component({
   selector: 'app-forgot-password',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TranslocoModule],
   template: `
     <div class="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950 px-4">
       <div class="w-full max-w-sm rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-8 shadow-sm">
@@ -18,7 +19,7 @@ import { authForgotPassword } from '../../../api/fn/reset-password/auth-forgot-p
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
             </svg>
           </div>
-          <h1 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Recuperar senha</h1>
+          <h1 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ 'auth.forgotPassword.title' | transloco }}</h1>
         </div>
 
         @if (success()) {
@@ -32,18 +33,18 @@ import { authForgotPassword } from '../../../api/fn/reset-password/auth-forgot-p
               </svg>
             </div>
             <p class="text-sm text-neutral-700 dark:text-neutral-300">
-              Se o e-mail informado estiver cadastrado, você receberá as instruções para redefinir sua senha em breve.
+              {{ 'auth.forgotPassword.successMessage' | transloco }}
             </p>
             <a
               routerLink="/login"
               class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-600 rounded"
             >
-              Voltar ao login
+              {{ 'auth.forgotPassword.backToLogin' | transloco }}
             </a>
           </div>
         } @else {
           <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-6 text-center">
-            Informe seu e-mail e enviaremos as instruções de recuperação.
+            {{ 'auth.forgotPassword.subtitle' | transloco }}
           </p>
 
           <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="flex flex-col gap-4">
@@ -58,7 +59,7 @@ import { authForgotPassword } from '../../../api/fn/reset-password/auth-forgot-p
 
             <div class="flex flex-col gap-1">
               <label for="email" class="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                E-mail
+                {{ 'auth.forgotPassword.emailLabel' | transloco }}
               </label>
               <input
                 id="email"
@@ -67,8 +68,8 @@ import { authForgotPassword } from '../../../api/fn/reset-password/auth-forgot-p
                 autocomplete="email"
                 [attr.aria-describedby]="emailError() ? 'email-error' : null"
                 [attr.aria-invalid]="emailError() ? 'true' : null"
+                [placeholder]="'auth.forgotPassword.emailPlaceholder' | transloco"
                 class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                placeholder="seu@email.com"
               />
               @if (emailError()) {
                 <p id="email-error" class="text-xs text-red-600 dark:text-red-400">{{ emailError() }}</p>
@@ -87,10 +88,10 @@ import { authForgotPassword } from '../../../api/fn/reset-password/auth-forgot-p
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                   </svg>
-                  Enviando…
+                  {{ 'auth.forgotPassword.sending' | transloco }}
                 </span>
               } @else {
-                Enviar instruções
+                {{ 'auth.forgotPassword.sendInstructions' | transloco }}
               }
             </button>
 
@@ -98,7 +99,7 @@ import { authForgotPassword } from '../../../api/fn/reset-password/auth-forgot-p
               routerLink="/login"
               class="text-center text-sm text-indigo-600 dark:text-indigo-400 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-600 rounded"
             >
-              Voltar ao login
+              {{ 'auth.forgotPassword.backToLogin' | transloco }}
             </a>
           </form>
         }
@@ -110,6 +111,7 @@ export class ForgotPasswordComponent {
   private readonly http = inject(HttpClient);
   private readonly apiConfig = inject(ApiConfiguration);
   private readonly fb = inject(FormBuilder);
+  private readonly t = inject(TranslocoService);
 
   readonly loading = signal(false);
   readonly errorMessage = signal<string | null>(null);
@@ -122,8 +124,8 @@ export class ForgotPasswordComponent {
   emailError(): string | null {
     const ctrl = this.form.controls.email;
     if (!ctrl.touched) return null;
-    if (ctrl.hasError('required')) return 'E-mail é obrigatório.';
-    if (ctrl.hasError('email')) return 'Informe um e-mail válido.';
+    if (ctrl.hasError('required')) return this.t.translate('validation.emailRequired');
+    if (ctrl.hasError('email')) return this.t.translate('validation.emailInvalid');
     return null;
   }
 
@@ -143,7 +145,7 @@ export class ForgotPasswordComponent {
       error: err => {
         this.loading.set(false);
         this.errorMessage.set(
-          err?.error?.message ?? 'Ocorreu um erro. Tente novamente.',
+          err?.error?.message ?? this.t.translate('auth.forgotPassword.genericError'),
         );
       },
     });

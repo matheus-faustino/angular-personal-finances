@@ -1,17 +1,18 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { TranslocoModule } from '@jsverse/transloco';
 import { AuthService } from '../../core/services/auth.service';
 import { NAV_ITEMS, NavItem } from '../nav-items';
 import { ProfileFormComponent } from '../profile-form/profile-form';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [RouterLink, RouterLinkActive, ProfileFormComponent],
+  imports: [RouterLink, RouterLinkActive, ProfileFormComponent, TranslocoModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <aside
       [class]="sidebarClass()"
-      aria-label="Navegação principal"
+      [attr.aria-label]="'sidebar.mainNav' | transloco"
     >
       <!-- Brand -->
       <div class="flex items-center gap-2 px-6 h-16 border-b border-neutral-200 dark:border-neutral-700">
@@ -20,7 +21,7 @@ import { ProfileFormComponent } from '../profile-form/profile-form';
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
           </svg>
         </div>
-        <span class="font-semibold text-neutral-900 dark:text-neutral-100 truncate">Finanças</span>
+        <span class="font-semibold text-neutral-900 dark:text-neutral-100 truncate">{{ 'app.brandShort' | transloco }}</span>
       </div>
 
       <!-- Nav -->
@@ -36,7 +37,7 @@ import { ProfileFormComponent } from '../profile-form/profile-form';
             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="item.icon"/>
             </svg>
-            {{ item.label }}
+            {{ item.labelKey | transloco }}
           </a>
         }
       </nav>
@@ -55,7 +56,7 @@ import { ProfileFormComponent } from '../profile-form/profile-form';
             <button
               type="button"
               (click)="profileOpen.set(true)"
-              aria-label="Editar perfil"
+              [attr.aria-label]="'profile.editAriaLabel' | transloco"
               class="flex-shrink-0 rounded-lg p-1.5 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">

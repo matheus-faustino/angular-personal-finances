@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { ApiConfiguration } from '../../../api/api-configuration';
 import { authResetPassword } from '../../../api/fn/reset-password/auth-reset-password';
 
@@ -14,7 +15,7 @@ function passwordsMatch(group: AbstractControl): ValidationErrors | null {
 @Component({
   selector: 'app-reset-password',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TranslocoModule],
   template: `
     <div class="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950 px-4">
       <div class="w-full max-w-sm rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-8 shadow-sm">
@@ -24,7 +25,7 @@ function passwordsMatch(group: AbstractControl): ValidationErrors | null {
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
             </svg>
           </div>
-          <h1 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Nova senha</h1>
+          <h1 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ 'auth.resetPassword.title' | transloco }}</h1>
         </div>
 
         <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="flex flex-col gap-4">
@@ -39,7 +40,7 @@ function passwordsMatch(group: AbstractControl): ValidationErrors | null {
 
           <div class="flex flex-col gap-1">
             <label for="password" class="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-              Nova senha
+              {{ 'auth.resetPassword.newPasswordLabel' | transloco }}
             </label>
             <div class="relative">
               <input
@@ -49,13 +50,13 @@ function passwordsMatch(group: AbstractControl): ValidationErrors | null {
                 autocomplete="new-password"
                 [attr.aria-describedby]="passwordError() ? 'password-error' : null"
                 [attr.aria-invalid]="passwordError() ? 'true' : null"
-                class="w-full rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 pr-10 text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 placeholder="••••••••"
+                class="w-full rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 pr-10 text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
               <button
                 type="button"
                 (click)="showPassword.set(!showPassword())"
-                [attr.aria-label]="showPassword() ? 'Ocultar senha' : 'Mostrar senha'"
+                [attr.aria-label]="showPassword() ? ('auth.login.hidePassword' | transloco) : ('auth.login.showPassword' | transloco)"
                 class="absolute inset-y-0 right-0 flex items-center px-3 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200"
               >
                 @if (showPassword()) {
@@ -77,7 +78,7 @@ function passwordsMatch(group: AbstractControl): ValidationErrors | null {
 
           <div class="flex flex-col gap-1">
             <label for="password_confirmation" class="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-              Confirmar nova senha
+              {{ 'auth.resetPassword.confirmPasswordLabel' | transloco }}
             </label>
             <input
               id="password_confirmation"
@@ -86,8 +87,8 @@ function passwordsMatch(group: AbstractControl): ValidationErrors | null {
               autocomplete="new-password"
               [attr.aria-describedby]="confirmationError() ? 'confirmation-error' : null"
               [attr.aria-invalid]="confirmationError() ? 'true' : null"
-              class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               placeholder="••••••••"
+              class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             />
             @if (confirmationError()) {
               <p id="confirmation-error" class="text-xs text-red-600 dark:text-red-400">{{ confirmationError() }}</p>
@@ -106,10 +107,10 @@ function passwordsMatch(group: AbstractControl): ValidationErrors | null {
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                 </svg>
-                Salvando…
+                {{ 'auth.resetPassword.saving' | transloco }}
               </span>
             } @else {
-              Salvar nova senha
+              {{ 'auth.resetPassword.save' | transloco }}
             }
           </button>
 
@@ -117,7 +118,7 @@ function passwordsMatch(group: AbstractControl): ValidationErrors | null {
             routerLink="/login"
             class="text-center text-sm text-indigo-600 dark:text-indigo-400 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-600 rounded"
           >
-            Voltar ao login
+            {{ 'auth.resetPassword.backToLogin' | transloco }}
           </a>
         </form>
       </div>
@@ -130,6 +131,7 @@ export class ResetPasswordComponent {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
+  private readonly t = inject(TranslocoService);
 
   readonly loading = signal(false);
   readonly errorMessage = signal<string | null>(null);
@@ -146,16 +148,16 @@ export class ResetPasswordComponent {
   passwordError(): string | null {
     const ctrl = this.form.controls.password;
     if (!ctrl.touched) return null;
-    if (ctrl.hasError('required')) return 'Senha é obrigatória.';
-    if (ctrl.hasError('minlength')) return 'A senha deve ter pelo menos 8 caracteres.';
+    if (ctrl.hasError('required')) return this.t.translate('validation.passwordRequired');
+    if (ctrl.hasError('minlength')) return this.t.translate('validation.passwordMinLength');
     return null;
   }
 
   confirmationError(): string | null {
     const ctrl = this.form.controls.password_confirmation;
     if (!ctrl.touched) return null;
-    if (ctrl.hasError('required')) return 'Confirmação de senha é obrigatória.';
-    if (this.form.hasError('passwordsMismatch')) return 'As senhas não coincidem.';
+    if (ctrl.hasError('required')) return this.t.translate('validation.passwordConfirmRequired');
+    if (this.form.hasError('passwordsMismatch')) return this.t.translate('validation.passwordsMismatch');
     return null;
   }
 
@@ -168,7 +170,7 @@ export class ResetPasswordComponent {
     const email = params.get('email') ?? '';
 
     if (!token || !email) {
-      this.errorMessage.set('Link de recuperação inválido ou expirado.');
+      this.errorMessage.set(this.t.translate('auth.resetPassword.invalidLink'));
       return;
     }
 
@@ -183,7 +185,7 @@ export class ResetPasswordComponent {
       error: err => {
         this.loading.set(false);
         this.errorMessage.set(
-          err?.error?.message ?? 'Erro ao redefinir a senha. O link pode ter expirado.',
+          err?.error?.message ?? this.t.translate('auth.resetPassword.resetError'),
         );
       },
     });

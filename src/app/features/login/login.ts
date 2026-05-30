@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TranslocoModule],
   template: `
     <div class="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950 px-4">
       <div class="w-full max-w-sm rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-8 shadow-sm">
@@ -16,7 +17,7 @@ import { AuthService } from '../../core/services/auth.service';
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
             </svg>
           </div>
-          <h1 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Finanças Pessoais</h1>
+          <h1 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ 'auth.login.title' | transloco }}</h1>
         </div>
 
         <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="flex flex-col gap-4">
@@ -31,7 +32,7 @@ import { AuthService } from '../../core/services/auth.service';
 
           <div class="flex flex-col gap-1">
             <label for="email" class="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-              E-mail
+              {{ 'auth.login.emailLabel' | transloco }}
             </label>
             <input
               id="email"
@@ -40,8 +41,8 @@ import { AuthService } from '../../core/services/auth.service';
               autocomplete="email"
               [attr.aria-describedby]="emailError() ? 'email-error' : null"
               [attr.aria-invalid]="emailError() ? 'true' : null"
+              [placeholder]="'auth.login.emailPlaceholder' | transloco"
               class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              placeholder="seu@email.com"
             />
             @if (emailError()) {
               <p id="email-error" class="text-xs text-red-600 dark:text-red-400">{{ emailError() }}</p>
@@ -50,7 +51,7 @@ import { AuthService } from '../../core/services/auth.service';
 
           <div class="flex flex-col gap-1">
             <label for="password" class="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-              Senha
+              {{ 'auth.login.passwordLabel' | transloco }}
             </label>
             <div class="relative">
               <input
@@ -60,13 +61,13 @@ import { AuthService } from '../../core/services/auth.service';
                 autocomplete="current-password"
                 [attr.aria-describedby]="passwordError() ? 'password-error' : null"
                 [attr.aria-invalid]="passwordError() ? 'true' : null"
-                class="w-full rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 pr-10 text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 placeholder="••••••••"
+                class="w-full rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 pr-10 text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
               <button
                 type="button"
                 (click)="showPassword.set(!showPassword())"
-                [attr.aria-label]="showPassword() ? 'Ocultar senha' : 'Mostrar senha'"
+                [attr.aria-label]="showPassword() ? ('auth.login.hidePassword' | transloco) : ('auth.login.showPassword' | transloco)"
                 class="absolute inset-y-0 right-0 flex items-center px-3 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200"
               >
                 @if (showPassword()) {
@@ -91,7 +92,7 @@ import { AuthService } from '../../core/services/auth.service';
               routerLink="/forgot-password"
               class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-600 rounded"
             >
-              Esqueceu a senha?
+              {{ 'auth.login.forgotPassword' | transloco }}
             </a>
           </div>
 
@@ -107,10 +108,10 @@ import { AuthService } from '../../core/services/auth.service';
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                 </svg>
-                Entrando…
+                {{ 'auth.login.signingIn' | transloco }}
               </span>
             } @else {
-              Entrar
+              {{ 'auth.login.signIn' | transloco }}
             }
           </button>
         </form>
@@ -122,6 +123,7 @@ export class LoginComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
+  private readonly t = inject(TranslocoService);
 
   readonly loading = signal(false);
   readonly errorMessage = signal<string | null>(null);
@@ -135,15 +137,15 @@ export class LoginComponent {
   emailError(): string | null {
     const ctrl = this.form.controls.email;
     if (!ctrl.touched) return null;
-    if (ctrl.hasError('required')) return 'E-mail é obrigatório.';
-    if (ctrl.hasError('email')) return 'Informe um e-mail válido.';
+    if (ctrl.hasError('required')) return this.t.translate('validation.emailRequired');
+    if (ctrl.hasError('email')) return this.t.translate('validation.emailInvalid');
     return null;
   }
 
   passwordError(): string | null {
     const ctrl = this.form.controls.password;
     if (!ctrl.touched) return null;
-    if (ctrl.hasError('required')) return 'Senha é obrigatória.';
+    if (ctrl.hasError('required')) return this.t.translate('validation.passwordRequired');
     return null;
   }
 
@@ -160,7 +162,7 @@ export class LoginComponent {
       error: err => {
         this.loading.set(false);
         this.errorMessage.set(
-          err?.error?.message ?? 'Credenciais inválidas. Tente novamente.',
+          err?.error?.message ?? this.t.translate('auth.login.invalidCredentials'),
         );
       },
     });
