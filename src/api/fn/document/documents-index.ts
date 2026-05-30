@@ -13,6 +13,7 @@ export interface DocumentsIndex$Params {
   start_date?: (string | null);
   end_date?: (string | null);
   per_page?: (number | null);
+  user_id?: (number | null);
 }
 
 export function documentsIndex(http: HttpClient, rootUrl: string, params?: DocumentsIndex$Params, context?: HttpContext): Observable<StrictHttpResponse<{
@@ -23,6 +24,7 @@ export function documentsIndex(http: HttpClient, rootUrl: string, params?: Docum
     rb.query('start_date', params.start_date, {});
     rb.query('end_date', params.end_date, {});
     rb.query('per_page', params.per_page, {});
+    rb.query('user_id', params.user_id, {});
   }
 
   return http.request(

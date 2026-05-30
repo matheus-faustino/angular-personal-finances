@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
 import { UserResource } from '../../../api/models/user-resource';
@@ -8,7 +9,7 @@ import { UserFormComponent } from './user-form/user-form';
 @Component({
   selector: 'app-users',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, UserFormComponent],
+  imports: [DatePipe, RouterLink, UserFormComponent],
   template: `
     <div class="space-y-6">
 
@@ -135,6 +136,22 @@ import { UserFormComponent } from './user-form/user-form';
                         </div>
                       } @else {
                         <div class="inline-flex items-center gap-2">
+                          @if (auth.currentUser()?.id !== user.id) {
+                            <a
+                              [routerLink]="['/transactions']"
+                              [queryParams]="{ user_id: user.id }"
+                              class="rounded px-2 py-1 text-xs font-medium border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+                            >
+                              Transações
+                            </a>
+                            <a
+                              [routerLink]="['/documents']"
+                              [queryParams]="{ user_id: user.id }"
+                              class="rounded px-2 py-1 text-xs font-medium border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+                            >
+                              Documentos
+                            </a>
+                          }
                           <button
                             type="button"
                             (click)="openEdit(user)"

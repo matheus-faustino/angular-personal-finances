@@ -15,6 +15,7 @@ export interface TransactionsIndex$Params {
   per_page?: (number | null);
   category_id?: (number | null);
   document_id?: (number | null);
+  user_id?: (number | null);
 }
 
 export function transactionsIndex(http: HttpClient, rootUrl: string, params?: TransactionsIndex$Params, context?: HttpContext): Observable<StrictHttpResponse<{
@@ -27,6 +28,7 @@ export function transactionsIndex(http: HttpClient, rootUrl: string, params?: Tr
     rb.query('per_page', params.per_page, {});
     rb.query('category_id', params.category_id, {});
     rb.query('document_id', params.document_id, {});
+    rb.query('user_id', params.user_id, {});
   }
 
   return http.request(

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { TransactionService } from '../../core/services/transaction.service';
 import { CategoryService } from '../../core/services/category.service';
@@ -276,6 +277,7 @@ import { TransactionFormComponent } from './transaction-form/transaction-form';
   `,
 })
 export class TransactionsComponent implements OnInit {
+  private readonly route              = inject(ActivatedRoute);
   protected readonly auth               = inject(AuthService);
   protected readonly transactionService = inject(TransactionService);
   protected readonly categoryService    = inject(CategoryService);
@@ -283,6 +285,8 @@ export class TransactionsComponent implements OnInit {
   protected readonly filterStartDate  = signal<string>('');
   protected readonly filterEndDate    = signal<string>('');
   protected readonly filterCategoryId = signal<number | null>(null);
+  private readonly filterDocumentId   = signal<number | null>(null);
+  private readonly filterUserId       = signal<number | null>(null);
 
   protected readonly modalOpen          = signal<boolean>(false);
   protected readonly editingTransaction = signal<TransactionResource | null>(null);
@@ -296,7 +300,14 @@ export class TransactionsComponent implements OnInit {
 
   ngOnInit(): void {
     this.categoryService.loadCategories();
-    this.transactionService.loadTransactions();
+    const docId = this.route.snapshot.queryParamMap.get('document_id');
+    if (docId) this.filterDocumentId.set(+docId);
+    const userId = this.route.snapshot.queryParamMap.get('user_id');
+    if (userId) this.filterUserId.set(+userId);
+    this.transactionService.loadTransactions({
+      document_id: this.filterDocumentId(),
+      user_id:     this.filterUserId(),
+    });
   }
 
   protected applyFilters(): void {
@@ -304,6 +315,8 @@ export class TransactionsComponent implements OnInit {
       start_date:  this.filterStartDate()  || null,
       end_date:    this.filterEndDate()    || null,
       category_id: this.filterCategoryId(),
+      document_id: this.filterDocumentId(),
+      user_id:     this.filterUserId(),
     });
   }
 
@@ -311,6 +324,8 @@ export class TransactionsComponent implements OnInit {
     this.filterStartDate.set('');
     this.filterEndDate.set('');
     this.filterCategoryId.set(null);
+    this.filterDocumentId.set(null);
+    this.filterUserId.set(null);
     this.transactionService.loadTransactions();
   }
 

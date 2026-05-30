@@ -288,6 +288,16 @@
                             "minimum": 1,
                             "maximum": 100
                         }
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ]
+                        }
                     }
                 ],
                 "responses": {
@@ -1087,6 +1097,16 @@
                     },
                     {
                         "name": "document_id",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "user_id",
                         "in": "query",
                         "schema": {
                             "type": [

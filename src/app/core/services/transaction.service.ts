@@ -17,6 +17,8 @@ export interface TransactionFilters {
   start_date?: string | null;
   end_date?: string | null;
   category_id?: number | null;
+  document_id?: number | null;
+  user_id?: number | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -35,6 +37,8 @@ export class TransactionService {
       start_date: filters?.start_date ?? null,
       end_date: filters?.end_date ?? null,
       category_id: filters?.category_id ?? null,
+      document_id: filters?.document_id ?? null,
+      user_id: filters?.user_id ?? null,
     })
       .pipe(
         map(r => r.body.data),

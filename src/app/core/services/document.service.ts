@@ -15,6 +15,7 @@ export interface DocumentFilters {
   start_date?: string | null;
   end_date?: string | null;
   per_page?: number | null;
+  user_id?: number | null;
 }
 
 @Injectable({ providedIn: 'root' })

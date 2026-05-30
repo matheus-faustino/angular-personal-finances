@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { DocumentService } from '../../core/services/document.service';
 import { DocumentResource } from '../../../api/models/document-resource';
@@ -208,6 +208,15 @@ import { DocumentFormComponent } from './document-form/document-form';
                     <td class="px-6 py-4 text-right">
                       <div class="inline-flex items-center gap-2">
                         @if (auth.isAdmin()) {
+                          @if (doc.status === 'processed') {
+                            <a
+                              [routerLink]="['/transactions']"
+                              [queryParams]="{ document_id: doc.id }"
+                              class="rounded px-2 py-1 text-xs font-medium border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+                            >
+                              Transações
+                            </a>
+                          }
                           <button
                             type="button"
                             (click)="openDetail(doc)"
@@ -244,6 +253,13 @@ import { DocumentFormComponent } from './document-form/document-form';
                             </button>
                           } @else {
                             @if (doc.status === 'processed') {
+                              <a
+                                [routerLink]="['/transactions']"
+                                [queryParams]="{ document_id: doc.id }"
+                                class="rounded px-2 py-1 text-xs font-medium border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+                              >
+                                Transações
+                              </a>
                               <a
                                 [routerLink]="['/documents', doc.id, 'categorize']"
                                 class="rounded px-2 py-1 text-xs font-medium border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors"
@@ -299,11 +315,13 @@ import { DocumentFormComponent } from './document-form/document-form';
   `,
 })
 export class DocumentsComponent implements OnInit {
+  private readonly route             = inject(ActivatedRoute);
   protected readonly auth            = inject(AuthService);
   protected readonly documentService = inject(DocumentService);
 
   protected readonly filterStartDate = signal<string>('');
   protected readonly filterEndDate   = signal<string>('');
+  private readonly filterUserId      = signal<number | null>(null);
 
   protected readonly modalOpen       = signal<boolean>(false);
   protected readonly editingDocument = signal<DocumentResource | null>(null);
@@ -318,7 +336,9 @@ export class DocumentsComponent implements OnInit {
   protected readonly skeletonRows = Array(5);
 
   ngOnInit(): void {
-    this.documentService.loadDocuments();
+    const userId = this.route.snapshot.queryParamMap.get('user_id');
+    if (userId) this.filterUserId.set(+userId);
+    this.documentService.loadDocuments({ user_id: this.filterUserId() });
     const flash = history.state?.flash;
     if (typeof flash === 'string') {
       this.successMessage.set(flash);
@@ -330,12 +350,14 @@ export class DocumentsComponent implements OnInit {
     this.documentService.loadDocuments({
       start_date: this.filterStartDate() || null,
       end_date:   this.filterEndDate()   || null,
+      user_id:    this.filterUserId(),
     });
   }
 
   protected clearFilters(): void {
     this.filterStartDate.set('');
     this.filterEndDate.set('');
+    this.filterUserId.set(null);
     this.documentService.loadDocuments();
   }
 
